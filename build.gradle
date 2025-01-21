@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+}
+
+group = 'imguiimplsdl24j'
+version = '1.88'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation platform("org.lwjgl:lwjgl-bom:3.3.6")
+
+    implementation "org.lwjgl:lwjgl"
+    implementation "org.lwjgl:lwjgl-glfw"
+    implementation "org.lwjgl:lwjgl-opengl"
+    runtimeOnly "org.lwjgl:lwjgl::natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-glfw::natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl::natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-glfw::natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl::natives-macos-arm64"
+    runtimeOnly "org.lwjgl:lwjgl-glfw::natives-macos-arm64"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::natives-macos-arm64"
+    runtimeOnly "org.lwjgl:lwjgl::natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-glfw::natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::natives-linux"
+
+    implementation "io.github.spair:imgui-java-binding:1.88.0"
+    implementation "io.github.spair:imgui-java-lwjgl3:1.88.0"
+    implementation "io.github.spair:imgui-java-natives-linux:1.88.0"
+    implementation "io.github.spair:imgui-java-natives-macos:1.88.0"
+    implementation "io.github.spair:imgui-java-natives-windows:1.88.0"
+
+    implementation "io.github.libsdl4j:libsdl4j:2.28.4-1.6"
+}
+
+tasks.register("fatJar", Jar) {
+    manifest {
+        attributes "Main-Class": "imguiimplsdl24j.library"
+    }
+    archiveBaseName = "ImGuiImplSDL2-4j"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {configurations.runtimeClasspath.collect {it.isDirectory() ? it : zipTree(it)}}
+    with jar
+}
