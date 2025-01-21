@@ -1,11 +1,24 @@
 # ImGuiImplSDL2-4j
 ImGuiImplSDL2 rewritten for Java.
+<br>
+**Supported platforms: Windows x64, Linux x64, MacOS x64 and arm64.**
+
 
 **This library is meant to be used with LWJGL, SpaiR's binding of ImGui, and libsdl4j using it's OpenGL context.**
 <br>
 Rendering on the SDL GL context works with ImGuiImplGl3, however, inputs won't work as the ImGui bindings for Java only have a GLFW binding. This library solves that as it is a Java version of the original ImGuiImplSDL.
 
 See the example in <code>src/test/java/Main.java</code> for information on how to use the library.
+
+**Video demonstration:**
+
+https://github.com/user-attachments/assets/ba410f82-f199-4520-970f-e28ffdd98f7d
+
+**To build:**
+<br>
+Windows: <code>.\gradlew fatJar</code>
+<br>
+Linux and MacOS: <code>./gradlew fatJar</code>
 
 **Credits:**
 <br>
