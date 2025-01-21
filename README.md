@@ -19,4 +19,4 @@ See the example in <code>src/test/java/Main.java</code> for information on how t
 <br>
 [JNA](https://github.com/java-native-access/jna)
 
-**There may be bugs since this is a Java rewrite of the original library**
+**There may be bugs since this is a Java rewrite of the original library.**
