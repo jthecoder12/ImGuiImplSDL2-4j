@@ -1,5 +1,6 @@
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imguiimplsdl24j.library.ImGuiImplSDL2;
 import io.github.libsdl4j.api.event.SDL_Event;
@@ -10,6 +11,7 @@ import org.lwjgl.system.Platform;
 
 import static io.github.libsdl4j.api.Sdl.SDL_Init;
 import static io.github.libsdl4j.api.Sdl.SDL_Quit;
+import static io.github.libsdl4j.api.SdlSubSystemConst.SDL_INIT_GAMECONTROLLER;
 import static io.github.libsdl4j.api.SdlSubSystemConst.SDL_INIT_VIDEO;
 import static io.github.libsdl4j.api.error.SdlError.SDL_GetError;
 import static io.github.libsdl4j.api.event.SDL_EventType.SDL_QUIT;
@@ -24,7 +26,7 @@ import static org.lwjgl.opengl.GL11.*;
 public final class Main {
     public static void main(String[] args) {
         // Initialize SDL2 with SDL_INIT_VIDEO
-        if(SDL_Init(SDL_INIT_VIDEO) != 0) throw new IllegalStateException("Failed to initialize SDL2: " + SDL_GetError());
+        if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) throw new IllegalStateException("Failed to initialize SDL2: " + SDL_GetError());
 
         // Create an SDL2 window
         final SDL_Window window = SDL_CreateWindow("ImGuiImplSDL2-4j Demo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
@@ -40,6 +42,7 @@ public final class Main {
         ImGui.createContext();
         ImGuiIO io = ImGui.getIO();
         io.setIniFilename(null);
+        io.addConfigFlags(ImGuiConfigFlags.NavEnableGamepad);
         // Enable the FreeType font renderer if we are not on MacOS
         if(Platform.get() != Platform.MACOSX) io.getFonts().setFreeTypeRenderer(true);
         io.getFonts().addFontDefault();

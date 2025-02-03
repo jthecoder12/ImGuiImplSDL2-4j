@@ -11,6 +11,7 @@ import imgui.flag.ImGuiConfigFlags;
 import imgui.flag.ImGuiKey;
 import imgui.flag.ImGuiMouseCursor;
 import io.github.libsdl4j.api.event.SDL_Event;
+import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
 import io.github.libsdl4j.api.mouse.SDL_Cursor;
 import io.github.libsdl4j.api.syswm.SDL_SysWMInfo;
 import io.github.libsdl4j.api.video.SDL_Window;
@@ -18,6 +19,9 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.Platform;
 
 import static io.github.libsdl4j.api.event.SDL_EventType.*;
+import static io.github.libsdl4j.api.gamecontroller.SDL_GameControllerAxis.*;
+import static io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton.*;
+import static io.github.libsdl4j.api.gamecontroller.SdlGamecontroller.*;
 import static io.github.libsdl4j.api.hints.SdlHints.SDL_SetHint;
 import static io.github.libsdl4j.api.hints.SdlHintsConst.SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH;
 import static io.github.libsdl4j.api.keycode.SDL_Keycode.*;
@@ -307,6 +311,7 @@ public final class ImGuiImplSDL2 {
 
 		updateMouseData();
 		updateMouseCursor();
+		updateGamepads();
 	}
 
 	private static void updateMouseData() {
@@ -338,6 +343,55 @@ public final class ImGuiImplSDL2 {
 			SDL_SetCursor(mouseCursors[imguiCursor] != null ? mouseCursors[imguiCursor] : mouseCursors[ImGuiMouseCursor.Arrow]);
 			SDL_ShowCursor(1);
 		}
+	}
+
+	private static void updateGamepads() {
+		ImGuiIO io = ImGui.getIO();
+		if(!io.hasConfigFlags(ImGuiConfigFlags.NavEnableGamepad)) return;
+
+		final SDL_GameController controller = SDL_GameControllerOpen(0);
+		if(controller == null) return;
+
+		io.addBackendFlags(ImGuiBackendFlags.HasGamepad);
+
+		final int thumbDeadZone = 8000;
+		mapButton(ImGuiKey.GamepadStart,           SDL_CONTROLLER_BUTTON_START, io, controller);
+		mapButton(ImGuiKey.GamepadBack,            SDL_CONTROLLER_BUTTON_BACK, io, controller);
+		mapButton(ImGuiKey.GamepadFaceDown,        SDL_CONTROLLER_BUTTON_A, io, controller);              // Xbox A, PS Cross
+		mapButton(ImGuiKey.GamepadFaceRight,       SDL_CONTROLLER_BUTTON_B, io, controller);              // Xbox B, PS Circle
+		mapButton(ImGuiKey.GamepadFaceLeft,        SDL_CONTROLLER_BUTTON_X, io, controller);              // Xbox X, PS Square
+		mapButton(ImGuiKey.GamepadFaceUp,          SDL_CONTROLLER_BUTTON_Y, io, controller);              // Xbox Y, PS Triangle
+		mapButton(ImGuiKey.GamepadDpadLeft,        SDL_CONTROLLER_BUTTON_DPAD_LEFT, io, controller);
+		mapButton(ImGuiKey.GamepadDpadRight,       SDL_CONTROLLER_BUTTON_DPAD_RIGHT, io, controller);
+		mapButton(ImGuiKey.GamepadDpadUp,          SDL_CONTROLLER_BUTTON_DPAD_UP, io, controller);
+		mapButton(ImGuiKey.GamepadDpadDown,        SDL_CONTROLLER_BUTTON_DPAD_DOWN, io, controller);
+		mapButton(ImGuiKey.GamepadL1,              SDL_CONTROLLER_BUTTON_LEFTSHOULDER, io, controller);
+		mapButton(ImGuiKey.GamepadR1,              SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, io, controller);
+		mapAnalog(ImGuiKey.GamepadL2,              SDL_CONTROLLER_AXIS_TRIGGERLEFT,  0.0f, 32767, io, controller);
+		mapAnalog(ImGuiKey.GamepadR2,              SDL_CONTROLLER_AXIS_TRIGGERRIGHT, 0.0f, 32767, io, controller);
+		mapButton(ImGuiKey.GamepadL3,              SDL_CONTROLLER_BUTTON_LEFTSTICK, io, controller);
+		mapButton(ImGuiKey.GamepadR3,              SDL_CONTROLLER_BUTTON_RIGHTSTICK, io, controller);
+		mapAnalog(ImGuiKey.GamepadLStickLeft,      SDL_CONTROLLER_AXIS_LEFTX,  -thumbDeadZone, -32768, io, controller);
+		mapAnalog(ImGuiKey.GamepadLStickRight,     SDL_CONTROLLER_AXIS_LEFTX,  +thumbDeadZone, +32767, io, controller);
+		mapAnalog(ImGuiKey.GamepadLStickUp,        SDL_CONTROLLER_AXIS_LEFTY,  -thumbDeadZone, -32768, io, controller);
+		mapAnalog(ImGuiKey.GamepadLStickDown,      SDL_CONTROLLER_AXIS_LEFTY,  +thumbDeadZone, +32767, io, controller);
+		mapAnalog(ImGuiKey.GamepadRStickLeft,      SDL_CONTROLLER_AXIS_RIGHTX, -thumbDeadZone, -32768, io, controller);
+		mapAnalog(ImGuiKey.GamepadRStickRight,     SDL_CONTROLLER_AXIS_RIGHTX, +thumbDeadZone, +32767, io, controller);
+		mapAnalog(ImGuiKey.GamepadRStickUp,        SDL_CONTROLLER_AXIS_RIGHTY, -thumbDeadZone, -32768, io, controller);
+		mapAnalog(ImGuiKey.GamepadRStickDown,      SDL_CONTROLLER_AXIS_RIGHTY, +thumbDeadZone, +32767, io, controller);
+	}
+
+	private static void mapButton(int keyNo, int buttonNo, @NotNull ImGuiIO io, SDL_GameController controller) {
+		io.addKeyEvent(keyNo, SDL_GameControllerGetButton(controller, buttonNo) != 0);
+	}
+
+	private static void mapAnalog(int keyNo, int axisNo, float v0, float v1, @NotNull ImGuiIO io, SDL_GameController controller) {
+		float vn = imSaturate((SDL_GameControllerGetAxis(controller, axisNo) - v0) / (v1 - v0));
+		io.addKeyAnalogEvent(keyNo, vn > 0.1f, vn);
+	}
+
+	private static float imSaturate(float v) {
+		return v < 0.0f ? 0.0f : Math.min(v, 1.0f);
 	}
 
 	/**
