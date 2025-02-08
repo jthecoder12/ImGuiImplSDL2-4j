@@ -1,4 +1,7 @@
 # ImGuiImplSDL2-4j
+
+# This is now discontinued because LWJGL released SDL bindings in their snapshot version. ImGui SDL bindings will most likely be added in the future to [SpaiR's ImGui](https://github.com/SpaiR/imgui-java). See [#314 on imgui-java](https://github.com/SpaiR/imgui-java/issues/314).
+
 ImGuiImplSDL2 rewritten for Java.
 <br>
 **Supported platforms: Windows x64, Linux x64, MacOS x64 and arm64.**
